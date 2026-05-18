@@ -1,0 +1,622 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities; 
+/* ============================================================
+   VITARISK — GLOBAL DESIGN SYSTEM
+   Import this ONCE in index.js or App.js:
+   import './global.css';
+   Then use classNames anywhere — no extra CSS needed.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap');
+
+/* ── 1. TOKENS (CSS Variables) ─────────────────────────────── */
+:root {
+  /* Backgrounds */
+  --bg:           #0A0A0A;
+  --bg-nav:       #111111;
+  --bg-card:      #161616;
+  --bg-card-2:    #1C1C1C;
+
+  /* Brand Colors */
+  --green: #008200;
+  --green-hover:  #4ADE80;
+  --green-dim:    rgba(34, 197, 94, 0.10);
+  --green-border: rgba(34, 197, 94, 0.22);
+
+  /* Status Colors */
+  --amber:        #EAB308;
+  --amber-dim:    rgba(234, 179, 8, 0.10);
+  --amber-border: rgba(234, 179, 8, 0.22);
+  --red:          #EF4444;
+  --red-dim:      rgba(239, 68, 68, 0.10);
+  --red-border:   rgba(239, 68, 68, 0.22);
+
+  /* Text */
+  --text:         #FFFFFF;
+  --text-muted:   rgba(255, 255, 255, 0.50);
+  --text-subtle:  rgba(255, 255, 255, 0.30);
+
+  /* Borders */
+  --border:       rgba(255, 255, 255, 0.07);
+  --border-hover: rgba(255, 255, 255, 0.15);
+
+  /* Typography */
+  --font-body:    'DM Sans', sans-serif;
+  --font-heading: 'Sora', sans-serif;
+
+  /* Spacing */
+  --radius-sm:    6px;
+  --radius-md:    9px;
+  --radius-lg:    13px;
+  --radius-xl:    18px;
+  --radius-pill:  999px;
+
+  /* Transitions */
+  --ease:         all 0.18s ease;
+}
+
+/* ── 2. RESET & BASE ───────────────────────────────────────── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { text-decoration: none; color: inherit; }
+button { cursor: pointer; font-family: var(--font-body); }
+
+
+/* ── 3. TYPOGRAPHY ─────────────────────────────────────────── */
+.vr-h1 {
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -1px;
+  color: var(--text);
+}
+
+.vr-h2 {
+  font-family: var(--font-heading);
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.5px;
+  color: var(--text);
+}
+
+.vr-h3 {
+  font-family: var(--font-heading);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.vr-accent  { color: var(--green); }
+.vr-muted   { color: var(--text-muted); }
+.vr-subtle  { color: var(--text-subtle); }
+.vr-label   { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: var(--text-muted); }
+
+/* ── 4. LAYOUT ─────────────────────────────────────────────── */
+.vr-container {
+  max-width: 1280px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.vr-section {
+  padding: 5rem 0;
+}
+
+.vr-page {
+  padding-top: 80px; /* offset for fixed navbar */
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+.vr-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+.vr-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+.vr-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
+
+.vr-flex        { display: flex; align-items: center; }
+.vr-flex-center { display: flex; align-items: center; justify-content: center; }
+.vr-flex-between{ display: flex; align-items: center; justify-content: space-between; }
+.vr-flex-col    { display: flex; flex-direction: column; }
+.vr-gap-sm      { gap: 0.5rem; }
+.vr-gap-md      { gap: 1rem; }
+.vr-gap-lg      { gap: 1.5rem; }
+
+/* ── 5. NAVBAR ─────────────────────────────────────────────── */
+.vr-navbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1000;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  padding: 0 2rem;
+  padding-top: 2px;
+  background: var(--bg-nav);
+  border-bottom: 1px solid var(--border);
+  transition: var(--ease);
+  font-family: var(--font-body);
+}
+
+.vr-navbar.scrolled {
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+  border-bottom-color: var(--border-hover);
+}
+
+.vr-navbar__inner {
+  max-width: 1280px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+.vr-brand__mark {
+  width: 36px; height: 36px;
+  background: var(--green);
+  border-radius: var(--radius-md);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.vr-brand__mark svg {
+  width: 18px; height: 18px;
+  fill: none;
+  stroke: #0A0A0A;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+}
+
+.vr-brand__name {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.3px;
+}
+
+.vr-brand__name span { color: var(--green); }
+
+.vr-brand__logo { height:auto; width: 300px; }
+
+/* Nav Links */
+.vr-nav__links {
+  display: flex;
+  align-items: center;
+  gap: 0.05rem;
+  flex: 1;
+ color: white;
+}
+
+.vr-nav__link {
+  padding: 0.42rem 0.85rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  transition: var(--ease);
+  white-space: nowrap;
+  color: white;
+}
+
+.vr-nav__link:hover        { color: var(--green); background: var(--green-dim); }
+.vr-nav__link.active {
+  color: #008200;
+  background: rgba(0, 130, 0, 0.1);
+  font-weight: 600;
+}
+/* Nav Auth */
+.vr-nav__auth { display: flex; align-items: center; gap: 0.55rem; flex-shrink: 0; }
+
+/* Mobile toggle */
+.vr-nav__toggle {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: transparent;
+  border: none;
+  padding: 8px;
+  margin-left: auto;
+}
+
+
+.vr-nav__toggle span {
+  width: 22px; height: 2px;
+  background: var(--text);
+  border-radius: 2px;
+  display: block;
+  transition: var(--ease);
+}
+
+.vr-nav__toggle.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+.vr-nav__toggle.open span:nth-child(2) { opacity: 0; }
+.vr-nav__toggle.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+/* Mobile menu */
+.vr-nav__mobile {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: var(--bg-nav);
+  z-index: 999;
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+  padding-top: 80px;
+  border-left: 1px solid var(--border);
+}
+
+.vr-nav__mobile.open { transform: translateX(0); }
+
+.vr-nav__mobile-inner {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.vr-nav__mobile-link {
+  padding: 0.875rem 1rem;
+  color: var(--text-muted);
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: var(--radius-md);
+  transition: var(--ease);
+}
+
+.vr-nav__mobile-link:hover,
+.vr-nav__mobile-link.active { color: var(--green); background: var(--green-dim); }
+
+.vr-nav__mobile-auth {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+}
+
+/* ── 6. BUTTONS ────────────────────────────────────────────── */
+
+/* Primary — Green solid */
+.vr-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0.55rem 1.4rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  border: none;
+  border-radius: var(--radius-md);
+  transition: var(--ease);
+  white-space: nowrap;
+  font-family: var(--font-body);
+}
+
+.vr-btn-primary {
+  background: var(--green);
+  color: #0A0A0A;
+}
+.vr-btn-primary:hover { background: var(--green-hover); transform: translateY(-1px); }
+
+/* Secondary — ghost */
+.vr-btn-secondary {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+.vr-btn-secondary:hover { color: var(--text); border-color: var(--border-hover); }
+
+/* Outline green */
+.vr-btn-outline {
+  background: transparent;
+  color: var(--green);
+  border: 1px solid var(--green-border);
+}
+.vr-btn-outline:hover { background: var(--green-dim); }
+
+/* Danger */
+.vr-btn-danger {
+  background: var(--red);
+  color: var(--text);
+}
+.vr-btn-danger:hover { opacity: 0.88; transform: translateY(-1px); }
+
+/* Sizes */
+.vr-btn-sm { padding: 0.35rem 0.9rem; font-size: 0.78rem; }
+.vr-btn-lg { padding: 0.75rem 2rem; font-size: 1rem; }
+
+/* ── 7. BADGES & PILLS ─────────────────────────────────────── */
+.vr-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0.28rem 0.75rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.vr-badge-green  { background: var(--green-dim);  color: var(--green);  border: 1px solid var(--green-border); }
+.vr-badge-amber  { background: var(--amber-dim);  color: var(--amber);  border: 1px solid var(--amber-border); }
+.vr-badge-red    { background: var(--red-dim);    color: var(--red);    border: 1px solid var(--red-border); }
+.vr-badge-ghost  { background: rgba(255,255,255,0.05); color: var(--text-muted); border: 1px solid var(--border); }
+
+/* Pulsing live dot inside badge */
+.vr-live-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: vrPulse 1.8s infinite;
+  flex-shrink: 0;
+}
+
+@keyframes vrPulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.2; }
+}
+
+/* ── 8. CARDS ──────────────────────────────────────────────── */
+.vr-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  transition: var(--ease);
+}
+
+.vr-card:hover { border-color: var(--border-hover); }
+
+.vr-card-green { border-color: var(--green-border); }
+.vr-card-green:hover { border-color: var(--green); }
+
+/* Stat card */
+.vr-stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: var(--ease);
+}
+.vr-stat-card:hover { border-color: var(--green-border); }
+
+.vr-stat-icon {
+  width: 42px; height: 42px;
+  border-radius: var(--radius-md);
+  background: var(--green-dim);
+  border: 1px solid var(--green-border);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.vr-stat-icon svg {
+  width: 20px; height: 20px;
+  fill: none;
+  stroke: var(--green);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.vr-stat-label { font-size: 0.7rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
+.vr-stat-value { font-size: 1.05rem; font-weight: 700; color: var(--text); }
+.vr-stat-tag   { font-size: 0.7rem; font-weight: 600; color: var(--green); margin-left: 5px; }
+
+/* ── 9. RISK METER ─────────────────────────────────────────── */
+.vr-meter {
+  background: var(--bg-card);
+  border: 1px solid var(--green-border);
+  border-radius: var(--radius-lg);
+  padding: 1.1rem 1.25rem;
+}
+
+.vr-meter__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.65rem;
+}
+
+.vr-meter__track {
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.vr-meter__fill {
+  height: 100%;
+  background: var(--green);
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+.vr-meter__fill.amber { background: var(--amber); }
+.vr-meter__fill.red   { background: var(--red); }
+
+.vr-meter__tags {
+  display: flex;
+  gap: 6px;
+  margin-top: 0.6rem;
+  flex-wrap: wrap;
+}
+
+/* ── 10. FORM ELEMENTS ─────────────────────────────────────── */
+.vr-input {
+  width: 100%;
+  padding: 0.6rem 1rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text);
+  font-size: 0.875rem;
+  font-family: var(--font-body);
+  outline: none;
+  transition: var(--ease);
+}
+
+.vr-input::placeholder { color: var(--text-subtle); }
+.vr-input:focus        { border-color: var(--green); box-shadow: 0 0 0 3px var(--green-dim); }
+
+.vr-select {
+  width: 100%;
+  padding: 0.6rem 1rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text);
+  font-size: 0.875rem;
+  font-family: var(--font-body);
+  outline: none;
+  cursor: pointer;
+  transition: var(--ease);
+}
+
+.vr-select:focus { border-color: var(--green); }
+
+.vr-label-text {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 0.4rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.vr-form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+
+/* ── 11. DIVIDER ───────────────────────────────────────────── */
+.vr-divider {
+  width: 100%;
+  height: 1px;
+  background: var(--border);
+  margin: 1.5rem 0;
+}
+
+.vr-divider-v {
+  width: 1px;
+  height: 20px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+/* ── 12. SECTION HEADING BLOCK ─────────────────────────────── */
+.vr-section-head {
+  text-align: center;
+  max-width: 560px;
+  margin: 0 auto 3rem;
+}
+
+.vr-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0.3rem 0.9rem;
+  background: var(--green-dim);
+  border: 1px solid var(--green-border);
+  border-radius: var(--radius-pill);
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--green);
+  margin-bottom: 1rem;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+/* ── 13. TRUST ROW ─────────────────────────────────────────── */
+.vr-trust-row {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+}
+
+.vr-trust-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.vr-trust-item svg {
+  width: 15px; height: 15px;
+  stroke: var(--green);
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  flex-shrink: 0;
+}
+
+/* ── 14. ICON BOX ──────────────────────────────────────────── */
+.vr-icon-box {
+  width: 42px; height: 42px;
+  border-radius: var(--radius-md);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.vr-icon-box-green  { background: var(--green-dim);  border: 1px solid var(--green-border); }
+.vr-icon-box-amber  { background: var(--amber-dim);  border: 1px solid var(--amber-border); }
+.vr-icon-box-red    { background: var(--red-dim);    border: 1px solid var(--red-border); }
+
+/* ── 15. TABLE ─────────────────────────────────────────────── */
+.vr-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.vr-table th {
+  padding: 0.65rem 1rem;
+  text-align: left;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+}
+
+.vr-table td {
+  padding: 0.75rem 1rem;
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+}
+
+.vr-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+/* ── 16. RESPONSIVE ────────────────────────────────────────── */
+@media (max-width: 960px) {
+  .vr-nav__links, .vr-nav__auth { display: none !important; }
+  .vr-nav__toggle { display: flex; }
+  .vr-navbar { padding: 0 1.25rem; }
+  .vr-container { padding: 0 1.25rem; }
+  .vr-grid-2, .vr-grid-3, .vr-grid-4 { grid-template-columns: 1fr; }
+  .vr-section { padding: 3rem 0; }
+}
+
+@media (max-width: 600px) {
+  .vr-h1 { font-size: 1.8rem; }
+  .vr-h2 { font-size: 1.4rem; }
+  .vr-trust-row { gap: 0.75rem; }
+}
