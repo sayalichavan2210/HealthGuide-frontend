@@ -221,29 +221,28 @@ export default function ResultScreen({ result, onReset, userEmail }) {
   const profile = result?.profile || {};
   const scores  = profile.riskScores || {};
 
-  const handleSendEmail = async () => {
-    if (!email) { alert("Email daalo!"); return; }
-    setSending(true);
-    try {
-      const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5000/api/health/send-report", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-        body: JSON.stringify({ profileId: profile._id, recipientEmail: email }),
-      });
-      const data = await res.json();
-      if (data.success) { setSent(true); setShowEmail(false); }
-      else alert(data.message || "Email sending failed");
-    } catch {
-      alert("Network error");
-    } finally {
-      setSending(false);
-    }
-  };
-
+const handleSendEmail = async (emailToUse = email) => {
+  if (!emailToUse) { alert("Email daalo!"); return; }
+  setSending(true);
+  try {
+    const token = localStorage.getItem("token");
+    const res = await fetch("http://localhost:5000/api/health/send-report", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
+      body: JSON.stringify({ profileId: profile._id, recipientEmail: emailToUse }),
+    });
+    const data = await res.json();
+    if (data.success) { setSent(true); setShowEmail(false); }
+    else alert(data.message || "Email sending failed");
+  } catch {
+    alert("Network error");
+  } finally {
+    setSending(false);
+  }
+};
   return (
     <div className="rs-page" style={{
       minHeight: "100vh",
@@ -379,44 +378,32 @@ export default function ResultScreen({ result, onReset, userEmail }) {
               <p style={{ color: G.textMuted, fontSize: "0.78rem", margin: "0 0 0.75rem", lineHeight: 1.5 }}>
                 Enter the email address to send the report to:
               </p>
-              <input
-                className="rs-email-input"
-                type="email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                placeholder="example@gmail.com"
-              />
+           <input
+  className="rs-email-input"
+  type="email"
+  value={email}
+  onChange={e => setEmail(e.target.value)}
+  placeholder="example@gmail.com"
+  // ✅ Yeh add karo — agar userEmail hai toh readonly
+  readOnly={!!userEmail}
+  style={{
+    opacity: userEmail ? 0.75 : 1,
+    cursor: userEmail ? "not-allowed" : "text",
+  }}
+/>
               <div style={{ display: "flex", gap: "8px" }}>
                 <button className="rs-cancel-btn" onClick={() => setShowEmail(false)}>
                   Cancel
                 </button>
-                <button
-                  className="rs-send-btn"
-                  onClick={handleSendEmail}
-                  disabled={sending}
-                  style={{
-                    background: sending
-                      ? "rgba(34,197,94,0.5)"
-                      : `linear-gradient(90deg, ${G.primaryDeep}, ${G.primary})`,
-                    color: "#F0FFF4",
-                    opacity: sending ? 0.7 : 1,
-                    cursor: sending ? "not-allowed" : "pointer",
-                  }}
-                >
-                  {sending ? (
-                    <>
-                      <span className="rs-spin" style={{
-                        width: "14px", height: "14px",
-                        border: "2px solid rgba(240,255,244,0.3)",
-                        borderTopColor: "#F0FFF4",
-                        borderRadius: "50%", display: "inline-block",
-                      }} />
-                      Sending...
-                    </>
-                  ) : (
-                    <>📤 Send Report</>
-                  )}
-                </button>
+               <button
+  className="rs-btn-outline-green"
+  style={{ marginBottom: "0.75rem" }}
+  onClick={() => userEmail ? handleSendEmail(userEmail) : setShowEmail(true)}
+  disabled={sending}
+>
+  {sending ? "📤 Sending..." : "📧 Share Report via Email"}
+</button>
+                 
               </div>
             </div>
           ) : (

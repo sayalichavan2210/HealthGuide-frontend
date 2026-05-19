@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useCreateAssessmentMutation } from "../Api/healthApi";
 import toast from "react-hot-toast";
 import ResultScreen from "./Resultscreen ";
+import { useSelector } from "react-redux";
 
 const STEPS = [
   { id: "basic",     label: "Basic Info",  icon: "👤" },
@@ -202,11 +203,11 @@ const Field = ({ label, children, unit }) => (
   </div>
 );
 
-export default function HealthAssessment() {
+export default function HealthAssessment( userEmail = "" ) {
   const [step, setStep]     = useState(0);
   const [form, setForm]     = useState(INITIAL);
   const [result, setResult] = useState(null);
-
+ 
   const [createAssessment, { isLoading }] = useCreateAssessmentMutation();
 
   const set = (key, val) => setForm(f => ({ ...f, [key]: val }));
@@ -454,11 +455,11 @@ export default function HealthAssessment() {
 
   if (result) {
     return (
-      <ResultScreen
-        result={result}
-        onReset={() => { setResult(null); setStep(0); setForm(INITIAL); }}
-        userEmail=""
-      />
+     <ResultScreen
+    result={result}
+    onReset={() => { setResult(null); setStep(0); setForm(INITIAL); }}
+    userEmail={userEmail} 
+  />
     );
   }
 

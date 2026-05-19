@@ -31,7 +31,7 @@ const HomePage = () => {
                 </p>
 
                 <div className="vr-flex vr-gap-sm">
-                  <button className="vr-btn vr-btn-primary vr-btn-lg">
+                  <button className="bg-[#2BBA68] py-2 rounded-xl px-2 text-green-900 font-bold">
                     Start Assessment →
                   </button>
                   <button className="vr-btn vr-btn-secondary vr-btn-lg">
