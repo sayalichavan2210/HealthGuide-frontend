@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 export const healthApi = createApi({
   reducerPath: "healthApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:5000/api/health",
+   baseUrl: `${import.meta.env.VITE_API_URL}/api/health`,
     prepareHeaders: (headers, { getState }) => {
       const token = getState().auth.token;
       if (token) headers.set("Authorization", `Bearer ${token}`);
