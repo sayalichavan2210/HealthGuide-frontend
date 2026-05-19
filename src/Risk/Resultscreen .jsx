@@ -226,7 +226,7 @@ const handleSendEmail = async (emailToUse = email) => {
   setSending(true);
   try {
     const token = localStorage.getItem("token");
-    const res = await fetch("http://localhost:5000/api/health/send-report", {
+    const res = await fetch("https://healthguide-backend.onrender.com/api/health/send-report", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 
-const API_BASE = "http://localhost:5000";
+const API_BASE = "https://healthguide-backend.onrender.com";
 
 // ── Green theme tokens ─────────────────────────────────────
 const G = {
