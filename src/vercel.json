@@ -1,0 +1,11 @@
+
+{
+  "env": {
+    "VITE_API_URL": "https://healthguide-backend.onrender.com"
+  },
+  "build": {
+    "env": {
+      "VITE_API_URL": "https://healthguide-backend.onrender.com"
+    }
+  }
+}
