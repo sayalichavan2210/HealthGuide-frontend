@@ -213,7 +213,9 @@ function OverallBadge({ risk }) {
 }
 
 export default function ResultScreen({ result, onReset, userEmail }) {
-  const [email,     setEmail]     = useState(userEmail || "");
+ const [email, setEmail] = useState(
+  typeof userEmail === "string" ? userEmail : userEmail?.email || ""
+);
   const [sending,   setSending]   = useState(false);
   const [sent,      setSent]      = useState(false);
   const [showEmail, setShowEmail] = useState(false);
