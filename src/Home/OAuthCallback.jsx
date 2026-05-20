@@ -26,7 +26,7 @@ export default function OAuthCallback() {
     }
 
     // /me call karke real user info lo
-    fetch("https://https://healthguide-backend.onrender.com/api/auth/me", {
+    fetch("https://healthguide-backend.onrender.com/api/auth/me", {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((r) => r.json())
