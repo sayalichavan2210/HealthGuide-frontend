@@ -1,15 +1,9 @@
-
 {
-     "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
-  ],
-  "env": {
-    "VITE_API_URL": "https://healthguide-backend.onrender.com"
-  },
-  "build": {
-    "env": {
-      "VITE_API_URL": "https://healthguide-backend.onrender.com"
+  "routes": [
+    {
+      "src": "/[^.]+",
+      "dest": "/",
+      "status": 200
     }
-  }
-  
+  ]
 }
