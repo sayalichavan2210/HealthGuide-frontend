@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-
+import { useSelector } from "react-redux";
 const G = {
   primary:       "#22C55E",
   primaryMid:    "#16A34A",
@@ -227,7 +227,8 @@ const handleSendEmail = async (emailToUse = email) => {
   if (!emailToUse) { alert("Email daalo!"); return; }
   setSending(true);
   try {
-    const token = localStorage.getItem("token");
+    const token = useSelector((state) => state.auth.token);
+
     const res = await fetch("https://healthguide-backend.onrender.com/api/health/send-report", {
       method: "POST",
       headers: {
