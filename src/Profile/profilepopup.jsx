@@ -3,52 +3,102 @@ import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { selectCurrentUser, logout } from "../Slice/authSlice";
 
-// ── Green theme (matches your app) ───────────────────────────────────────────
-const G = {
-  primary:       "#22C55E",
-  primaryMid:    "#16A34A",
-  primaryDeep:   "#15803D",
-  primaryGlow:   "rgba(34,197,94,0.18)",
-  primaryFaint:  "rgba(34,197,94,0.07)",
-  primaryBorder: "rgba(34,197,94,0.22)",
-  bg:            "#050A05",
-  card:          "rgba(6,14,6,0.97)",
-  inputBg:       "rgba(5,20,8,0.95)",
-  inputBorder:   "rgba(34,197,94,0.16)",
-  textPrimary:   "#DCFCE7",
-  textMuted:     "#4A8A5A",
-  textFaint:     "#2A5A32",
-};
-
-// ── Helper — initials from name ───────────────────────────────────────────────
+// ── Helpers ────────────────────────────────────────────────
 function getInitials(name = "") {
-  return name
-    .split(" ")
-    .map((w) => w[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2) || "U";
+  return (
+    name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2) || "U"
+  );
 }
 
-// ── Menu item ─────────────────────────────────────────────────────────────────
-function MenuItem({ icon, label, onClick, danger = false }) {
-  const [hovered, setHovered] = useState(false);
+function getRiskColor(pct) {
+  if (pct > 60) return { text: "#f87171", bar: "#ef4444", bg: "rgba(239,68,68,0.10)" };
+  if (pct > 35) return { text: "#fbbf24", bar: "#f59e0b", bg: "rgba(245,158,11,0.10)" };
+  return { text: "#22c55e", bar: "#22c55e", bg: "rgba(34,197,94,0.10)" };
+}
+
+// ── Global styles ──────────────────────────────────────────
+const Css = () => (
+  <style>{`
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+
+    .pp-wrap * { box-sizing: border-box; font-family: 'DM Sans', sans-serif; }
+
+    @keyframes ppPopIn {
+      from { opacity: 0; transform: scale(0.93) translateY(-8px); }
+      to   { opacity: 1; transform: scale(1)    translateY(0);    }
+    }
+    @keyframes ppBlink { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+
+    .pp-avatar-btn {
+      transition: transform 0.18s;
+    }
+    .pp-avatar-btn:hover { transform: scale(1.06); }
+
+    .pp-popup {
+      animation: ppPopIn 0.22s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+
+    .pp-tab-btn {
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .pp-menu-btn {
+      transition: background 0.12s, color 0.12s;
+    }
+    .pp-menu-btn:hover {
+      background: rgba(34,197,94,0.07) !important;
+      color: #22c55e !important;
+    }
+    .pp-menu-btn.danger:hover {
+      background: rgba(239,68,68,0.08) !important;
+      color: #f87171 !important;
+    }
+
+    .pp-info-row:hover {
+      border-color: rgba(34,197,94,0.25) !important;
+    }
+
+    .pp-online-dot {
+      animation: ppBlink 2s ease-in-out infinite;
+    }
+  `}</style>
+);
+
+// ── Sub-components ─────────────────────────────────────────
+export function Avatar({ name, size = 36, onClick, active = false }) {
+  const initials = getInitials(name);
+  return (
+    <div
+      onClick={onClick}
+      className="pp-avatar-btn"
+      style={{
+        width: size, height: size, borderRadius: "50%", flexShrink: 0,
+        background: "linear-gradient(135deg, #15803D, #22C55E)",
+        border: active ? "2px solid #22C55E" : "2px solid rgba(34,197,94,0.35)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        fontSize: size * 0.34, fontWeight: 700, color: "#F0FFF4",
+        cursor: onClick ? "pointer" : "default",
+        boxShadow: active ? "0 0 0 4px rgba(34,197,94,0.15)" : "none",
+        userSelect: "none",
+      }}
+    >
+      {initials}
+    </div>
+  );
+}
+
+function MenuBtn({ icon, label, onClick, danger = false }) {
   return (
     <button
       onClick={onClick}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      className={`pp-menu-btn${danger ? " danger" : ""}`}
       style={{
         width: "100%", display: "flex", alignItems: "center", gap: 10,
-        padding: "9px 14px", borderRadius: 10, border: "none", cursor: "pointer",
-        background: hovered
-          ? danger ? "rgba(239,68,68,0.08)" : G.primaryFaint
-          : "transparent",
-        color: hovered
-          ? danger ? "#f87171" : G.primary
-          : danger ? "#ef4444" : G.textMuted,
+        padding: "8px 12px", borderRadius: 10, border: "none",
+        background: "transparent",
+        color: danger ? "#ef4444" : "#4A8A5A",
         fontSize: 13, fontWeight: 500, fontFamily: "inherit",
-        transition: "all 0.15s ease", textAlign: "left",
+        cursor: "pointer", textAlign: "left",
       }}
     >
       <span style={{ fontSize: 15, flexShrink: 0 }}>{icon}</span>
@@ -57,48 +107,72 @@ function MenuItem({ icon, label, onClick, danger = false }) {
   );
 }
 
-// ── Avatar component (reusable) ───────────────────────────────────────────────
-export function Avatar({ name, size = 36, onClick, pulse = false }) {
-  const initials = getInitials(name);
+function InfoRow({ icon, label, value }) {
   return (
-    <div
-      onClick={onClick}
-      style={{
-        width: size, height: size, borderRadius: "50%", flexShrink: 0,
-        background: `linear-gradient(135deg, ${G.primaryDeep}, ${G.primary})`,
-        display: "flex", alignItems: "center", justifyContent: "center",
-        fontSize: size * 0.35, fontWeight: 700, color: "#052008",
-        cursor: onClick ? "pointer" : "default",
-        border: `2px solid ${G.primaryBorder}`,
-        boxShadow: pulse ? `0 0 0 4px ${G.primaryFaint}` : "none",
-        transition: "box-shadow 0.2s, transform 0.2s",
-        userSelect: "none",
-      }}
-      onMouseEnter={e => { if (onClick) e.currentTarget.style.transform = "scale(1.05)"; }}
-      onMouseLeave={e => { e.currentTarget.style.transform = "scale(1)"; }}
-    >
-      {initials}
+    <div className="pp-info-row" style={{
+      display: "flex", alignItems: "center", gap: 10,
+      padding: "9px 11px", borderRadius: 10, marginBottom: 6,
+      background: "rgba(5,20,8,0.85)",
+      border: "1px solid rgba(34,197,94,0.13)",
+      transition: "border-color 0.15s",
+    }}>
+      <span style={{ fontSize: 14, flexShrink: 0, color: "#4A8A5A" }}>{icon}</span>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 10, color: "#2A5A32", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 2 }}>
+          {label}
+        </div>
+        <div style={{ fontSize: 12, color: "#DCFCE7", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          {value}
+        </div>
+      </div>
     </div>
   );
 }
 
-// ── Main ProfilePopup component ───────────────────────────────────────────────
+function RiskRow({ icon, label, pctRaw }) {
+  const pct = pctRaw != null ? Math.round(pctRaw * 100) : null;
+  const col = pct != null ? getRiskColor(pct) : null;
+  return (
+    <div style={{
+      padding: "9px 11px", borderRadius: 10, marginBottom: 6,
+      background: "rgba(5,20,8,0.85)",
+      border: "1px solid rgba(34,197,94,0.13)",
+    }}>
+      <div style={{ display: "flex", alignItems: "center", marginBottom: 6 }}>
+        <span style={{ fontSize: 14, flexShrink: 0, marginRight: 8, color: "#4A8A5A" }}>{icon}</span>
+        <span style={{ fontSize: 12, color: "#4A8A5A", flex: 1 }}>{label}</span>
+        <span style={{
+          fontSize: 12, fontWeight: 700,
+          color: col ? col.text : "#2A5A32",
+        }}>
+          {pct != null ? `${pct}%` : "—"}
+        </span>
+      </div>
+      <div style={{ height: 3, borderRadius: 2, background: "rgba(34,197,94,0.10)", overflow: "hidden" }}>
+        {pct != null && (
+          <div style={{ height: 3, borderRadius: 2, width: `${pct}%`, background: col.bar, transition: "width 0.6s ease" }} />
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── Main ───────────────────────────────────────────────────
 export default function ProfilePopup() {
-  const [open, setOpen]   = useState(false);
-  const [tab, setTab]     = useState("profile"); // "profile" | "health"
-  const popupRef          = useRef(null);
-  const user              = useSelector(selectCurrentUser);
-  const dispatch          = useDispatch();
-  const navigate          = useNavigate();
+  const [open, setOpen] = useState(false);
+  const [tab,  setTab]  = useState("profile");
+  const popupRef        = useRef(null);
+  const user            = useSelector(selectCurrentUser);
+  const dispatch        = useDispatch();
+  const navigate        = useNavigate();
 
   // Close on outside click
   useEffect(() => {
+    if (!open) return;
     function handleClick(e) {
-      if (popupRef.current && !popupRef.current.contains(e.target)) {
-        setOpen(false);
-      }
+      if (popupRef.current && !popupRef.current.contains(e.target)) setOpen(false);
     }
-    if (open) document.addEventListener("mousedown", handleClick);
+    document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, [open]);
 
@@ -115,202 +189,149 @@ export default function ProfilePopup() {
     setOpen(false);
   }
 
-  const name      = user?.name  || user?.fullName || "User";
-  const email     = user?.email || "—";
-  const joinedAt  = user?.createdAt
+  const name     = user?.name || user?.fullName || "User";
+  const email    = user?.email || "—";
+  const joinedAt = user?.createdAt
     ? new Date(user.createdAt).toLocaleDateString("en-IN", { month: "long", year: "numeric" })
     : "—";
+  const provider = user?.provider === "google" ? "Google OAuth"
+    : user?.provider === "github" ? "GitHub OAuth"
+    : "Email & Password";
+
+  const lastRisk = user?.lastRisk || {};
+  const overallRisk = (lastRisk.overall || "—").replace("_", " ").toUpperCase();
+  const overallColor = overallRisk.includes("HIGH") ? "#f87171" : overallRisk === "MODERATE" ? "#fbbf24" : "#22c55e";
 
   return (
-    <div ref={popupRef} style={{ position: "relative", display: "inline-block" }}>
+    <div ref={popupRef} className="pp-wrap" style={{ position: "relative", display: "inline-block" }}>
+      <Css />
 
-      {/* ── Navbar Avatar trigger ── */}
-      <Avatar name={name} size={36} onClick={() => setOpen(o => !o)} pulse={open} />
+      {/* Avatar trigger */}
+      <Avatar name={name} size={36} onClick={() => setOpen(o => !o)} active={open} />
 
-      {/* ── Popup ── */}
+      {/* Popup panel */}
       {open && (
-        <div
-          style={{
-            position: "absolute", top: "calc(100% + 12px)", right: 0,
-            width: 300, zIndex: 9999,
-            background: G.card,
-            border: `1px solid ${G.primaryBorder}`,
-            borderRadius: 20,
-            boxShadow: "0 24px 48px rgba(0,0,0,0.7), 0 0 0 1px rgba(34,197,94,0.05)",
-            overflow: "hidden",
-            animation: "popIn 0.2s cubic-bezier(0.34,1.56,0.64,1)",
-          }}
-        >
-          <style>{`
-            @keyframes popIn {
-              from { opacity: 0; transform: scale(0.92) translateY(-8px); }
-              to   { opacity: 1; transform: scale(1) translateY(0); }
-            }
-          `}</style>
+        <div className="pp-popup" style={{
+          position: "absolute", top: "calc(100% + 12px)", right: 0,
+          width: 300, zIndex: 9999,
+          background: "rgba(6,14,6,0.98)",
+          border: "1px solid rgba(34,197,94,0.22)",
+          borderRadius: 20,
+          boxShadow: "0 24px 48px rgba(0,0,0,0.75), inset 0 1px 0 rgba(34,197,94,0.05)",
+          overflow: "hidden",
+        }}>
 
-          {/* Top glow */}
-          <div style={{
-            position: "absolute", top: 0, left: 0, right: 0, height: 80,
-            background: "linear-gradient(180deg, rgba(34,197,94,0.06) 0%, transparent 100%)",
-            pointerEvents: "none",
-          }} />
+          {/* Top glow strip */}
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 90, background: "linear-gradient(180deg, rgba(34,197,94,0.06) 0%, transparent 100%)", pointerEvents: "none" }} />
 
-          {/* ── Header — avatar + name ── */}
-          <div style={{ padding: "20px 20px 14px", position: "relative" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          {/* ── Header ── */}
+          <div style={{ padding: "18px 18px 14px", position: "relative", borderBottom: "1px solid rgba(34,197,94,0.09)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
               <Avatar name={name} size={48} />
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{
-                  fontSize: 15, fontWeight: 700, color: G.textPrimary,
-                  overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-                }}>{name}</div>
-                <div style={{
-                  fontSize: 11, color: G.textMuted, marginTop: 2,
-                  overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-                }}>{email}</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: "#DCFCE7", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {name}
+                </div>
+                <div style={{ fontSize: 11, color: "#4A8A5A", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {email}
+                </div>
               </div>
               {/* Online dot */}
-              <div style={{
-                width: 8, height: 8, borderRadius: "50%",
-                background: G.primary, flexShrink: 0,
-                boxShadow: `0 0 6px ${G.primary}`,
-              }} />
+              <div className="pp-online-dot" style={{ width: 8, height: 8, borderRadius: "50%", background: "#22c55e", boxShadow: "0 0 5px #22c55e", flexShrink: 0 }} />
             </div>
 
-            {/* Joined badge */}
-            <div style={{
-              marginTop: 12, display: "inline-flex", alignItems: "center", gap: 6,
-              padding: "4px 10px", borderRadius: 20,
-              background: G.primaryFaint, border: `1px solid ${G.primaryBorder}`,
-            }}>
+            {/* Member since badge */}
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "3px 10px", background: "rgba(34,197,94,0.07)", border: "1px solid rgba(34,197,94,0.18)", borderRadius: 20 }}>
               <span style={{ fontSize: 11 }}>📅</span>
-              <span style={{ fontSize: 11, color: G.textMuted, fontWeight: 500 }}>
-                Member since {joinedAt}
-              </span>
+              <span style={{ fontSize: 11, color: "#4A8A5A", fontWeight: 500 }}>Member since {joinedAt}</span>
             </div>
           </div>
 
           {/* ── Tab switcher ── */}
-          <div style={{
-            display: "flex", margin: "0 14px 10px",
-            background: "rgba(5,18,8,0.9)",
-            borderRadius: 10, padding: 3,
-            border: `1px solid ${G.inputBorder}`,
-          }}>
+          <div style={{ display: "flex", gap: 4, margin: "12px 14px 0", background: "rgba(5,18,8,0.9)", border: "1px solid rgba(34,197,94,0.13)", borderRadius: 10, padding: 3 }}>
             {[
-              { id: "profile", label: "👤 Profile" },
-              { id: "health",  label: "📊 Health"  },
+              { id: "profile", icon: "👤", label: "Profile" },
+              { id: "health",  icon: "📊", label: "Health"  },
             ].map(t => (
               <button
                 key={t.id}
+                className="pp-tab-btn"
                 onClick={() => setTab(t.id)}
                 style={{
-                  flex: 1, padding: "6px 0", border: "none", borderRadius: 8,
+                  flex: 1, padding: "7px 0", border: "none", borderRadius: 8,
                   cursor: "pointer", fontSize: 12, fontWeight: 600,
-                  fontFamily: "inherit", transition: "all 0.15s",
-                  background: tab === t.id
-                    ? `linear-gradient(135deg, ${G.primaryDeep}, ${G.primaryMid})`
-                    : "transparent",
-                  color: tab === t.id ? "#F0FFF4" : G.textFaint,
-                  boxShadow: tab === t.id ? "0 2px 8px rgba(34,197,94,0.2)" : "none",
+                  fontFamily: "inherit",
+                  display: "flex", alignItems: "center", justifyContent: "center", gap: 5,
+                  background: tab === t.id ? "linear-gradient(135deg, #15803D, #16A34A)" : "transparent",
+                  color: tab === t.id ? "#F0FFF4" : "#2A5A32",
+                  boxShadow: tab === t.id ? "0 2px 8px rgba(34,197,94,0.18)" : "none",
                 }}
-              >{t.label}</button>
+              >
+                <span style={{ fontSize: 12 }}>{t.icon}</span>
+                {t.label}
+              </button>
             ))}
           </div>
 
           {/* ── Tab content ── */}
-          <div style={{ padding: "0 14px", minHeight: 120 }}>
+          <div style={{ padding: "12px 14px" }}>
 
             {/* Profile tab */}
             {tab === "profile" && (
-              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                {[
-                  { icon: "👤", label: "Full name",  value: name  },
-                  { icon: "📧", label: "Email",       value: email },
-                  { icon: "🔐", label: "Account type", value: user?.provider === "google" ? "Google OAuth" : user?.provider === "github" ? "GitHub OAuth" : "Email & Password" },
-                ].map(({ icon, label, value }) => (
-                  <div key={label} style={{
-                    display: "flex", alignItems: "center", gap: 10,
-                    padding: "9px 12px", borderRadius: 10,
-                    background: "rgba(5,18,8,0.8)",
-                    border: `1px solid ${G.inputBorder}`,
-                  }}>
-                    <span style={{ fontSize: 14, flexShrink: 0 }}>{icon}</span>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 10, color: G.textFaint, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>{label}</div>
-                      <div style={{
-                        fontSize: 12, color: G.textPrimary, fontWeight: 500,
-                        marginTop: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-                      }}>{value}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <>
+                <InfoRow icon="👤" label="Full name"    value={name}     />
+                <InfoRow icon="📧" label="Email"        value={email}    />
+                <InfoRow icon="🔐" label="Account type" value={provider} />
+              </>
             )}
 
             {/* Health tab */}
             {tab === "health" && (
-              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              <>
+                {/* Overall risk badge */}
                 <div style={{
-                  padding: "10px 12px", borderRadius: 10,
-                  background: G.primaryFaint, border: `1px solid ${G.primaryBorder}`,
-                  display: "flex", alignItems: "center", gap: 8, marginBottom: 2,
+                  display: "flex", alignItems: "center", justifyContent: "space-between",
+                  padding: "10px 12px", borderRadius: 10, marginBottom: 8,
+                  background: "rgba(34,197,94,0.07)", border: "1px solid rgba(34,197,94,0.20)",
                 }}>
-                  <span style={{ fontSize: 14 }}>ℹ️</span>
-                  <span style={{ fontSize: 11, color: G.textMuted, lineHeight: 1.5 }}>
-                    Complete a risk assessment to see your health summary here.
+                  <span style={{ fontSize: 12, color: "#4A8A5A" }}>Overall risk</span>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: overallColor }}>
+                    {lastRisk.overall ? overallRisk : "—"}
                   </span>
                 </div>
-                {[
-                  { icon: "🩸", label: "Diabetes Risk",     value: user?.lastRisk?.diabetes     || "—" },
-                  { icon: "❤️", label: "Heart Disease Risk", value: user?.lastRisk?.heartDisease || "—" },
-                  { icon: "🩺", label: "Hypertension Risk",  value: user?.lastRisk?.hypertension || "—" },
-                ].map(({ icon, label, value }) => (
-                  <div key={label} style={{
-                    display: "flex", alignItems: "center", justifyContent: "space-between",
-                    padding: "9px 12px", borderRadius: 10,
-                    background: "rgba(5,18,8,0.8)", border: `1px solid ${G.inputBorder}`,
-                  }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <span style={{ fontSize: 14 }}>{icon}</span>
-                      <span style={{ fontSize: 12, color: G.textMuted }}>{label}</span>
-                    </div>
-                    <span style={{
-                      fontSize: 12, fontWeight: 700,
-                      color: value === "—" ? G.textFaint : G.primary,
-                    }}>{value}</span>
+
+                <RiskRow icon="🩸" label="Diabetes risk"      pctRaw={lastRisk.diabetes}     />
+                <RiskRow icon="❤️" label="Heart disease risk" pctRaw={lastRisk.heartDisease}  />
+                <RiskRow icon="🩺" label="Hypertension risk"  pctRaw={lastRisk.hypertension}  />
+
+                {!lastRisk.diabetes && (
+                  <div style={{ fontSize: 11, color: "#2A5A32", textAlign: "center", marginTop: 4, lineHeight: 1.5 }}>
+                    Complete a risk assessment to see your health summary.
                   </div>
-                ))}
-              </div>
+                )}
+              </>
             )}
           </div>
 
           {/* ── Divider ── */}
-          <div style={{ height: 1, background: `rgba(34,197,94,0.08)`, margin: "14px 0 6px" }} />
+          <div style={{ height: 1, background: "rgba(34,197,94,0.08)", margin: "0 14px" }} />
 
-          {/* ── Menu items ── */}
-          <div style={{ padding: "0 6px 6px" }}>
-            <MenuItem icon="✏️" label="Edit Profile"     onClick={() => { navigate("/profile"); setOpen(false); }} />
-            <MenuItem icon="📋" label="My Reports"       onClick={() => { navigate("/report");  setOpen(false); }} />
-            <MenuItem icon="🔬" label="New Assessment"   onClick={() => { navigate("/risk");    setOpen(false); }} />
-            <MenuItem icon="📄" label="Analyze Report"   onClick={() => { navigate("/medicalreportanalyzer"); setOpen(false); }} />
+          {/* ── Menu ── */}
+          <div style={{ padding: "8px 8px 4px" }}>
+            <MenuBtn icon="✏️" label="Edit Profile"     onClick={() => { navigate("/profile"); setOpen(false); }} />
+            <MenuBtn icon="📋" label="My Reports"       onClick={() => { navigate("/report");  setOpen(false); }} />
+            <MenuBtn icon="🔬" label="New Assessment"   onClick={() => { navigate("/risk");    setOpen(false); }} />
+            <MenuBtn icon="📄" label="Analyze Report"   onClick={() => { navigate("/medicalreportanalyzer"); setOpen(false); }} />
 
-            {/* Divider */}
-            <div style={{ height: 1, background: `rgba(34,197,94,0.06)`, margin: "6px 8px" }} />
+            <div style={{ height: 1, background: "rgba(34,197,94,0.06)", margin: "6px 4px" }} />
 
-            <MenuItem icon="🚪" label="Logout" onClick={handleLogout} danger />
+            <MenuBtn icon="🚪" label="Logout" onClick={handleLogout} danger />
           </div>
 
           {/* ── Footer ── */}
-          <div style={{
-            padding: "10px 14px",
-            borderTop: `1px solid rgba(34,197,94,0.06)`,
-            display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-          }}>
+          <div style={{ padding: "10px 14px", borderTop: "1px solid rgba(34,197,94,0.06)", display: "flex", alignItems: "center", justifyContent: "center", gap: 5 }}>
             <span style={{ fontSize: 10 }}>🔒</span>
-            <span style={{ fontSize: 10, color: G.textFaint }}>
-              Secured by VitaRisk · Data encrypted
-            </span>
+            <span style={{ fontSize: 10, color: "#2A5A32" }}>Secured by VitaRisk · Data encrypted</span>
           </div>
         </div>
       )}
