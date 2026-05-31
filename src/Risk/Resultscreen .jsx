@@ -213,9 +213,22 @@ function OverallBadge({ risk }) {
 }
 
 export default function ResultScreen({ result, onReset, userEmail }) {
- const [email, setEmail] = useState(
-  typeof userEmail === "string" ? userEmail : userEmail?.email || ""
-);
+  // ✅ YAHAN HONA CHAHIYE — abhi missing hai
+  const token    = useSelector((state) => state.auth.token);
+  const authUser = useSelector((state) => state.auth.user);
+
+  // ✅ Email — authUser se automatically lo
+  const [email, setEmail] = useState("");
+  
+  // ✅ useEffect se email set karo
+  useEffect(() => {
+    const resolvedEmail = 
+      typeof userEmail === "string" ? userEmail :
+      userEmail?.email ||
+      authUser?.email || "";
+    setEmail(resolvedEmail);
+  }, [userEmail, authUser]);
+
   const [sending,   setSending]   = useState(false);
   const [sent,      setSent]      = useState(false);
   const [showEmail, setShowEmail] = useState(false);
@@ -223,29 +236,32 @@ export default function ResultScreen({ result, onReset, userEmail }) {
   const profile = result?.profile || {};
   const scores  = profile.riskScores || {};
 
-const handleSendEmail = async (emailToUse = email) => {
-  if (!emailToUse) { alert("Email daalo!"); return; }
-  setSending(true);
-  try {
-    const token = useSelector((state) => state.auth.token);
+  const handleSendEmail = async (emailToUse = email) => {
+    if (!emailToUse) { alert("Email nahi mila!"); return; }
+    if (!token) { alert("Login karke dobara try karo!"); return; }
 
-    const res = await fetch("https://healthguide-backend.onrender.com/api/health/send-report", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,
-      },
-      body: JSON.stringify({ profileId: profile._id, recipientEmail: emailToUse }),
-    });
-    const data = await res.json();
-    if (data.success) { setSent(true); setShowEmail(false); }
-    else alert(data.message || "Email sending failed");
-  } catch {
-    alert("Network error");
-  } finally {
-    setSending(false);
-  }
-};
+    setSending(true);
+    try {
+      const res = await fetch("https://healthguide-backend.onrender.com/api/health/send-report", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          profileId:      profile._id,
+          recipientEmail: emailToUse,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) { setSent(true); setShowEmail(false); }
+      else alert(data.message || "Email sending failed");
+    } catch (err) {
+      alert("Network error: " + err.message);
+    } finally {
+      setSending(false);
+    }
+  };
   return (
     <div className="rs-page" style={{
       minHeight: "100vh",
