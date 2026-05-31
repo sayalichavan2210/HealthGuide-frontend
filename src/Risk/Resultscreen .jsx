@@ -213,31 +213,31 @@ function OverallBadge({ risk }) {
 }
 
 export default function ResultScreen({ result, onReset, userEmail }) {
-  // ✅ YAHAN HONA CHAHIYE — abhi missing hai
+  // ✅ SABSE PEHLE declare karo
   const token    = useSelector((state) => state.auth.token);
   const authUser = useSelector((state) => state.auth.user);
 
-  // ✅ Email — authUser se automatically lo
-  const [email, setEmail] = useState("");
-  
-  // ✅ useEffect se email set karo
+  // ✅ Email string ensure karo
+  const resolvedEmail = 
+    typeof userEmail === "string" ? userEmail :
+    typeof userEmail?.email === "string" ? userEmail.email :
+    typeof authUser?.email === "string" ? authUser.email : "";
+
+  const [email, setEmail] = useState(resolvedEmail);
+
   useEffect(() => {
-    const resolvedEmail = 
-      typeof userEmail === "string" ? userEmail :
-      userEmail?.email ||
-      authUser?.email || "";
-    setEmail(resolvedEmail);
-  }, [userEmail, authUser]);
-
-  const [sending,   setSending]   = useState(false);
-  const [sent,      setSent]      = useState(false);
-  const [showEmail, setShowEmail] = useState(false);
-
-  const profile = result?.profile || {};
-  const scores  = profile.riskScores || {};
+    if (resolvedEmail && !email) setEmail(resolvedEmail);
+  }, [resolvedEmail]);
 
   const handleSendEmail = async (emailToUse = email) => {
-    if (!emailToUse) { alert("Email nahi mila!"); return; }
+    // ✅ String ensure karo
+    const finalEmail = typeof emailToUse === "string" 
+      ? emailToUse 
+      : String(emailToUse?.email || emailToUse || "");
+
+    console.log("Sending to:", finalEmail, typeof finalEmail);
+
+    if (!finalEmail) { alert("Email nahi mila!"); return; }
     if (!token) { alert("Login karke dobara try karo!"); return; }
 
     setSending(true);
@@ -250,10 +250,11 @@ export default function ResultScreen({ result, onReset, userEmail }) {
         },
         body: JSON.stringify({
           profileId:      profile._id,
-          recipientEmail: emailToUse,
+          recipientEmail: finalEmail, // ✅ guaranteed string
         }),
       });
       const data = await res.json();
+      console.log("Response:", data);
       if (data.success) { setSent(true); setShowEmail(false); }
       else alert(data.message || "Email sending failed");
     } catch (err) {
@@ -417,7 +418,7 @@ export default function ResultScreen({ result, onReset, userEmail }) {
                <button
   className="rs-btn-outline-green"
   style={{ marginBottom: "0.75rem" }}
-  onClick={() => userEmail ? handleSendEmail(userEmail) : setShowEmail(true)}
+onClick={() => email ? handleSendEmail(email) : setShowEmail(true)}
   disabled={sending}
 >
   {sending ? "📤 Sending..." : "📧 Share Report via Email"}
