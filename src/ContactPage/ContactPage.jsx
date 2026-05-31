@@ -249,7 +249,7 @@ export default function ContactPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.name || !form.email || !form.message) {
-      toast.error("Name, email aur message required hai!"); return;
+      toast.error("name email & message is required"); return;
     }
     setLoading(true);
     try {
