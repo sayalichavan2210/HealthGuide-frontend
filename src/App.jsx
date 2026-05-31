@@ -13,7 +13,7 @@ import ReportPage     from "./Report/Report";
 import ContactPage    from "./ContactPage/ContactPage";
 import AboutUs        from "./Aboutus/AboutUs";
 import ProfilePopup from "./Profile/profilepopup";
-// ── Protected route — login nahi hai toh /login ───────────────────────────────
+import AdminPanel from "./Admin/AdminPanel";
 function ProtectedRoute({ children }) {
   const isAuth = useSelector(selectIsAuth);
   return isAuth ? children : <Navigate to="/login" replace />;
@@ -83,6 +83,9 @@ export default function App() {
 
         <Route path="/about" element={
           <ProtectedRoute><AboutUs /></ProtectedRoute>
+        }/>
+        <Route path="/admin" element={
+          <ProtectedRoute><AdminPanel /></ProtectedRoute>
         }/>
 
         {/* ── Fallback ── */}
