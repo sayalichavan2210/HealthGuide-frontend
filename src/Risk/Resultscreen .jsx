@@ -211,31 +211,37 @@ function OverallBadge({ risk }) {
     </div>
   );
 }
-
 export default function ResultScreen({ result, onReset, userEmail }) {
-  // ✅ SABSE PEHLE declare karo
+  // ✅ 1. Redux hooks SABSE PEHLE
   const token    = useSelector((state) => state.auth.token);
   const authUser = useSelector((state) => state.auth.user);
 
-  // ✅ Email string ensure karo
+  // ✅ 2. Data variables
+  const profile = result?.profile || {};
+  const scores  = profile.riskScores || {};
+
+  // ✅ 3. Email resolve
   const resolvedEmail = 
     typeof userEmail === "string" ? userEmail :
     typeof userEmail?.email === "string" ? userEmail.email :
     typeof authUser?.email === "string" ? authUser.email : "";
 
-  const [email, setEmail] = useState(resolvedEmail);
+  // ✅ 4. State
+  const [email,     setEmail]     = useState(resolvedEmail);
+  const [sending,   setSending]   = useState(false);
+  const [sent,      setSent]      = useState(false);
+  const [showEmail, setShowEmail] = useState(false);
 
+  // ✅ 5. useEffect
   useEffect(() => {
     if (resolvedEmail && !email) setEmail(resolvedEmail);
   }, [resolvedEmail]);
 
+  // ✅ 6. Handler
   const handleSendEmail = async (emailToUse = email) => {
-    // ✅ String ensure karo
     const finalEmail = typeof emailToUse === "string" 
       ? emailToUse 
       : String(emailToUse?.email || emailToUse || "");
-
-    console.log("Sending to:", finalEmail, typeof finalEmail);
 
     if (!finalEmail) { alert("Email nahi mila!"); return; }
     if (!token) { alert("Login karke dobara try karo!"); return; }
@@ -250,7 +256,7 @@ export default function ResultScreen({ result, onReset, userEmail }) {
         },
         body: JSON.stringify({
           profileId:      profile._id,
-          recipientEmail: finalEmail, // ✅ guaranteed string
+          recipientEmail: finalEmail,
         }),
       });
       const data = await res.json();
