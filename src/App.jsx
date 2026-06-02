@@ -14,6 +14,7 @@ import ContactPage    from "./ContactPage/ContactPage";
 import AboutUs        from "./Aboutus/AboutUs";
 import ProfilePopup from "./Profile/profilepopup";
 import AdminPanel from "./Admin/AdminPanel";
+import EditProfile from "./Profile/EditProfile";
 function ProtectedRoute({ children }) {
   const isAuth = useSelector(selectIsAuth);
   return isAuth ? children : <Navigate to="/login" replace />;
@@ -86,6 +87,9 @@ export default function App() {
         }/>
         <Route path="/admin" element={
           <ProtectedRoute><AdminPanel /></ProtectedRoute>
+        }/>
+        <Route path="/edit-profile" element={
+          <ProtectedRoute><EditProfile /></ProtectedRoute>
         }/>
 
         {/* ── Fallback ── */}

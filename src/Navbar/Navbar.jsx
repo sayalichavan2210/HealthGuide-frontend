@@ -58,14 +58,6 @@ export default function Navbar() {
 </div>
 <div className='flex items-center gap-4  bg-white/40 border border-white/20 rounded-full px-5'>
 
-  <button
-    onClick={() => navigate("/profile")}
-    className=' bg-gradient-to-t from-green-600 to-green-900 py-1 rounded-full
-     px-5 text-white 
-    hover:bg-green-500 transition'
-  >
-    Profile
-  </button>
 <ProfilePopup />
   {/* Divider */}
   <div className='h-8 border-r border-white/30'></div>

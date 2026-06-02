@@ -285,32 +285,7 @@ export default function ProfilePopup() {
               </>
             )}
 
-            {/* Health tab */}
-            {tab === "health" && (
-              <>
-                {/* Overall risk badge */}
-                <div style={{
-                  display: "flex", alignItems: "center", justifyContent: "space-between",
-                  padding: "10px 12px", borderRadius: 10, marginBottom: 8,
-                  background: "rgba(34,197,94,0.07)", border: "1px solid rgba(34,197,94,0.20)",
-                }}>
-                  <span style={{ fontSize: 12, color: "#4A8A5A" }}>Overall risk</span>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: overallColor }}>
-                    {lastRisk.overall ? overallRisk : "—"}
-                  </span>
-                </div>
-
-                <RiskRow icon="🩸" label="Diabetes risk"      pctRaw={lastRisk.diabetes}     />
-                <RiskRow icon="❤️" label="Heart disease risk" pctRaw={lastRisk.heartDisease}  />
-                <RiskRow icon="🩺" label="Hypertension risk"  pctRaw={lastRisk.hypertension}  />
-
-                {!lastRisk.diabetes && (
-                  <div style={{ fontSize: 11, color: "#2A5A32", textAlign: "center", marginTop: 4, lineHeight: 1.5 }}>
-                    Complete a risk assessment to see your health summary.
-                  </div>
-                )}
-              </>
-            )}
+          
           </div>
 
           {/* ── Divider ── */}
@@ -318,7 +293,7 @@ export default function ProfilePopup() {
 
           {/* ── Menu ── */}
           <div style={{ padding: "8px 8px 4px" }}>
-            <MenuBtn icon="✏️" label="Edit Profile"     onClick={() => { navigate("/profile"); setOpen(false); }} />
+            <MenuBtn icon="✏️" label="Edit Profile"     onClick={() => { navigate("/edit-profile"); setOpen(false); }} />
             <MenuBtn icon="📋" label="My Reports"       onClick={() => { navigate("/report");  setOpen(false); }} />
             <MenuBtn icon="🔬" label="New Assessment"   onClick={() => { navigate("/risk");    setOpen(false); }} />
             <MenuBtn icon="📄" label="Analyze Report"   onClick={() => { navigate("/medicalreportanalyzer"); setOpen(false); }} />
